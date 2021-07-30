@@ -9,6 +9,6 @@ const {
 }=require('../controllers/restaurents');
 
 router.route('/').get(getrestaurents).post(createrestaurent);
-router.route(':/id').get(getrestaurent).put(updaterestaurent).delete(deleterestaurent);
+router.route('/:id').get(getrestaurent).put(updaterestaurent).delete(deleterestaurent);
 
 module.exports= router;
