@@ -1,20 +1,14 @@
 const express = require('express');
 const router = express.Router();
+const {
+    getrestaurent,
+    getrestaurents,
+    createrestaurent,
+    updaterestaurent,
+    deleterestaurent
+}=require('../controllers/restaurents');
 
-router.get('/',(req,res)=>{
-    res.status(404).json({success:true,msg:"create new restaurents"});
-});
-router.get('/:id',(req,res)=>{
-    res.status(404).json({success:true,msg:`Get restaurent ${req.params.id}`});
-});
-router.post('/',(req,res)=>{
-    res.status(404).json({success:true,msg:"create new restaurents"});
-});
-router.put('/:id',(req,res)=>{
-    res.status(404).json({success:true,msg:`Update restaurent ${req.params.id}`});
-});
-router.delete('/:id',(req,res)=>{
-    res.status(404).json({success:true,msg:`Delete restaurent ${req.params.id}`});
-});
+router.route('/').get(getrestaurents).post(createrestaurent);
+router.route(':/id').get(getrestaurent).put(updaterestaurent).delete(deleterestaurent);
 
 module.exports= router;
