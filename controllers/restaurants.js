@@ -8,7 +8,8 @@ exports.getrestaurants=async(req,res,next)=>{
         const restaurant=await Restaurant.find(); 
         res.status(200).json({success:true,msg:"show all restaurents",count:restaurant.length,data:restaurant});
     } catch (error) {
-        res.status(400).json({success:false,msg:"can't create new restaurents!"});
+       // res.status(400).json({success:false,msg:"can't get restaurents!"});
+       next(error);
     }
     
 }
@@ -23,8 +24,9 @@ exports.getrestaurant=async (req,res,next)=>{
             return res.status(400).json({success:false,msg:"id not correctly formatted"});    
         }
         res.status(200).json({success:true,msg:"show the restaurent",data:restaurant});
-    } catch (error) {
-        res.status(400).json({success:false,msg:`can't Get restaurent ${req.params.id}`});
+    } catch (err) {
+       // res.status(400).json({success:false,msg:`can't Get restaurent ${req.params.id}`});
+       next(err);
     }
     
 }
