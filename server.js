@@ -1,28 +1,38 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const logger=require('./middleware/logger');
-const morgan=require('morgan');
+const connectDb = require('./config/db');
+const errorHandler=require('./middleware/error');
 
 //Route files
 const restaurents = require('./routes/routes');
 
 //lOAD ENV VARS
 dotenv.config({path:'./config/config.env'});
+
+//connect to database
+connectDb();
 app=express();
 const PORT=process.env.PORT ;
 const ENV=process.env.NODE_ENV;
 
-//use of third party logger morgan with dev mode 
-if(process.env.NODE_ENV==='developement'){
-    app.use(morgan('dev'));     //result would be DELETE http://localhost:5000 /api/v1/restaurents/1 200 1.56ms
-}
+//Body Parser
+app.use(express.json());
 
 //use of custom logger
 app.use(logger);
 
 //Mount the router(restaurents) on a specific url(/api/v1/restaurents)
-app.use('/api/v1/restaurents',restaurents);
+app.use('/api/v1/restaurants',restaurents);
+app.use(errorHandler);
 
 
 
-app.listen(PORT,console.log(`server is running in ${ENV} mode on port ${PORT}`));
+
+const server=app.listen(PORT,console.log(`server is running in ${ENV} mode on port ${PORT}`));
+
+//Handle unhandled promise rejections if database is not able to connect
+process.on('unhandledRejection',(err,Promise) => {
+    console.log(`Error:${err.message}`);
+    server.close(() => process.exit(1));
+});
