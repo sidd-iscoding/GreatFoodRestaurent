@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const {
-    getrestaurent,
-    getrestaurents,
-    createrestaurent,
-    updaterestaurent,
-    deleterestaurent
-}=require('../controllers/restaurents');
+    getrestaurant,
+    getrestaurants,
+    createrestaurant,
+    updaterestaurant,
+    deleterestaurant
+}=require('../controllers/restaurants');
 
-router.route('/').get(getrestaurents).post(createrestaurent);
-router.route('/:id').get(getrestaurent).put(updaterestaurent).delete(deleterestaurent);
+router.route('/').get(getrestaurants).post(createrestaurant);
+router.route('/:id').get(getrestaurant).put(updaterestaurant).delete(deleterestaurant);
 
 module.exports= router;
