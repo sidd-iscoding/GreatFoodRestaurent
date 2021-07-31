@@ -1,4 +1,5 @@
 const Restaurant = require('../Models/Restaurant');
+const ErrorResponse=require('../utility/ErrorResponse');
 
 //@desc   get all restaurents
 //@routes GET api/v1/restaurents
@@ -21,12 +22,12 @@ exports.getrestaurant=async (req,res,next)=>{
     try {
         const restaurant=await Restaurant.findById(req.params.id); 
         if(!restaurant){
-            return res.status(400).json({success:false,msg:"id not correctly formatted"});    
+            return next(new ErrorResponse(`Restaurant not found with ${req.params.id}`,404));   
         }
         res.status(200).json({success:true,msg:"show the restaurent",data:restaurant});
     } catch (err) {
        // res.status(400).json({success:false,msg:`can't Get restaurent ${req.params.id}`});
-       next(err);
+       next(new ErrorResponse(`Restaurant not found with ${req.params.id}`,404));
     }
     
 }
