@@ -8,9 +8,9 @@ exports.getrestaurants=async(req,res,next)=>{
     try {
         const restaurant=await Restaurant.find(); 
         res.status(200).json({success:true,msg:"show all restaurents",count:restaurant.length,data:restaurant});
-    } catch (error) {
+    } catch (err) {
        // res.status(400).json({success:false,msg:"can't get restaurents!"});
-       next(error);
+       next(err);
     }
     
 }
@@ -27,7 +27,7 @@ exports.getrestaurant=async (req,res,next)=>{
         res.status(200).json({success:true,msg:"show the restaurent",data:restaurant});
     } catch (err) {
        // res.status(400).json({success:false,msg:`can't Get restaurent ${req.params.id}`});
-       next(new ErrorResponse(`Restaurant not found with ${req.params.id}`,404));
+       next(err);
     }
     
 }
@@ -38,8 +38,8 @@ exports.createrestaurant=async (req,res,next)=>{
     try {
         const restaurant=await Restaurant.create(req.body);
         res.status(201).json({success:true,msg:"create new restaurents",data: restaurant});
-    } catch (error) {
-        res.status(400).json({success:false,msg:"can't create new restaurents!"});
+    } catch (err) {
+        next(err);
     }
     
 }
@@ -54,11 +54,11 @@ exports.updaterestaurant=async(req,res,next)=>{
             runValidators:true  
         });
         if(!restaurant){
-            return res.status(400).json({success:false,msg:"id not correctly formatted"});    
+            return next(new ErrorResponse(`Restaurant not found with ${req.params.id}`,404));      
         }
         res.status(200).json({success:true,msg:"show the updated restaurent",data:restaurant});
-    } catch (error) {
-        res.status(400).json({success:false,msg:`can't update restaurent with ${req.params.id}`});
+    } catch (err) {
+        next(err);
     }
 }
 
@@ -69,11 +69,11 @@ exports.deleterestaurant=async(req,res,next)=>{
     try {
         const restaurant=await Restaurant.findByIdAndDelete(req.params.id)
         if(!restaurant){
-            return res.status(400).json({success:false,msg:"id not correctly formatted"});    
+            return next(new ErrorResponse(`Restaurant not found with ${req.params.id}`,404));      
         }
         res.status(200).json({success:true,msg:" restaurent deleted"});
-    } catch (error) {
-        res.status(400).json({success:false,msg:`can't Get restaurent ${req.params.id}`});
+    } catch (err) {
+        next(err);
     }
     
 }
