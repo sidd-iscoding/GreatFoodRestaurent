@@ -1,11 +1,13 @@
 const mongoose = require('mongoose');
+const slugify = require('slugify');
+const geocoder=require('../utility/geocoder');
 
 const resturSchema=new mongoose.Schema({
     name:{
         type: String,
         required:[true, 'Name is requires!'],
         unique: true,
-        maxlenght: [50, 'Name should not be more than 50 characters!']
+        maxlength: [50, 'Name should not be more than 50 characters!']
     },
     slug: String,
     description: {
@@ -90,4 +92,54 @@ const resturSchema=new mongoose.Schema({
       },
 });
 
+//create restaurant slug form the name
+//arrow function handles scope differently and can't be used with this keyword
+resturSchema.pre('save', function(next){
+  this.slug=slugify(this.name,{lower: true });
+  next();
+});
+
+//Geocode & create location field
+resturSchema.pre('save', async function(next){
+  const loc= await  geocoder.geocode(this.address);
+  this.location={
+    type: 'Point',
+    coordinates: [loc[0].longitude,loc[0].latitude],
+    formattedAddress:loc[0].formattedAddress,
+    street:loc[0].streetName,
+    city:loc[0].city,
+    state:loc[0].state,
+    zipcode:loc[0].zipcode,
+    country:loc[0].countryCode
+  };
+  //Do not save address
+  this.address=undefined;
+  next();
+});
+
+
+
 module.exports=mongoose.model('Restaurant',resturSchema); 
+
+/*
+// output of geocoder:
+[
+  {
+    latitude: 48.8698679,
+    longitude: 2.3072976,
+    country: 'France',
+    countryCode: 'FR',
+    city: 'Paris',
+    zipcode: '75008',
+    streetName: 'Champs-Élysées',
+    streetNumber: '29',
+    administrativeLevels: {
+      level1long: 'Île-de-France',
+      level1short: 'IDF',
+      level2long: 'Paris',
+      level2short: '75'
+    },
+    provider: 'google'
+  }
+];
+*/
