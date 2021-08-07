@@ -7,8 +7,11 @@ const geocoder=require('../utility/geocoder');
 //@routes GET api/v1/restaurents
 //@access No Signin required
 exports.getrestaurants=asyncHandler(async(req,res,next)=>{
-    
-        const restaurant=await Restaurant.find(); 
+        let queryStr = JSON.stringify(req.query);
+        queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
+        console.log(JSON.parse(queryStr));
+        let query = Restaurant.find(JSON.parse(queryStr));  //we can also pass req.query directly with [$lt]
+        const restaurant=await query; 
         res.status(200).json({success:true,msg:"show all restaurents",count:restaurant.length,data:restaurant});
     
 });
