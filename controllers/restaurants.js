@@ -1,6 +1,7 @@
 const Restaurant = require('../Models/Restaurant');
 const ErrorResponse=require('../utility/ErrorResponse');
 const asyncHandler=require('../middleware/asyncErrorHandler');
+const geocoder=require('../utility/geocoder');
 
 //@desc   get all restaurents
 //@routes GET api/v1/restaurents
@@ -57,5 +58,33 @@ exports.deleterestaurant=asyncHandler(async(req,res,next)=>{
             return next(new ErrorResponse(`Restaurant not found with ${req.params.id}`,404));      
         }
         res.status(200).json({success:true,msg:" restaurent deleted"});
+    
+});
+
+//@desc   Get restaurents within a radius
+//@routes Get api/v1/restaurents/radius/:zipcode/:distance
+//@access Signin required
+exports.getRestaurantInRadius=asyncHandler(async(req,res,next)=>{
+        const {zipcode,distance}=req.params;
+
+        //Get lat/lng from geocoder
+        const loc=await geocoder.geocode(zipcode);
+        const  lat = loc[0].latitude;
+        const lng = loc[0].longitude;
+
+        //Calculate radiud using radians
+        //To convert: distance to radians: divide the distance by the radius of the sphere (e.g. the Earth) in 
+        //the same units as the distance measurement. The equatorial radius of the Earth is
+        // approximately 3,963.2 miles or 6,378.1 kilometers.
+        const radius = distance / 6378.1;
+        
+        const restaurants = await Restaurant.find({
+                location: {$geoWithin: { $centerSphere: [ [ lng , lat ], radius ]}}
+        });
+        res.status(200).json({
+                success:true,
+                count: restaurants.length,
+                data: restaurants
+        });
     
 });
