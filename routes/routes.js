@@ -5,9 +5,11 @@ const {
     getrestaurants,
     createrestaurant,
     updaterestaurant,
-    deleterestaurant
+    deleterestaurant,
+    getRestaurantInRadius
 }=require('../controllers/restaurants');
 
+router.route('/radius/:zipcode/:distance').get(getRestaurantInRadius);
 router.route('/').get(getrestaurants).post(createrestaurant);
 router.route('/:id').get(getrestaurant).put(updaterestaurant).delete(deleterestaurant);
 
