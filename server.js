@@ -5,10 +5,12 @@ const connectDb = require('./config/db');
 const errorHandler=require('./middleware/error');
 
 //Route files
-const restaurents = require('./routes/routes');
+const restaurants = require('./routes/routes');
+const menus = require('./routes/menuRoutes');
 
 //lOAD ENV VARS
 dotenv.config({path:'./config/config.env'});
+
 
 //connect to database
 connectDb();
@@ -22,8 +24,9 @@ app.use(express.json());
 //use of custom logger
 app.use(logger);
 
-//Mount the router(restaurents) on a specific url(/api/v1/restaurents)
-app.use('/api/v1/restaurants',restaurents);
+//Mount the router(restaurants) on a specific url(/api/v1/restaurants)
+app.use('/api/v1/restaurants',restaurants);
+app.use('/api/v1/menus',menus);
 app.use(errorHandler);
 
 
