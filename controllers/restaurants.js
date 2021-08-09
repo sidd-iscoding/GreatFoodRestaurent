@@ -9,7 +9,7 @@ const geocoder=require('../utility/geocoder');
 exports.getrestaurants=asyncHandler(async(req,res,next)=>{
         const reqQuery = {...req.query};        //use of spread opertor to copy req.query
         //Arrays of fields to exclude for filtering
-        const removeFields = ['select','sort'];
+        const removeFields = ['select','sort','page','limit'];
 
         //Loop over removeFields  and delete them from reqQuery
         removeFields.forEach(param => delete reqQuery[param]);
@@ -31,9 +31,34 @@ exports.getrestaurants=asyncHandler(async(req,res,next)=>{
         }else{
                 query = query.sort('-createdAt');
         }
-        
+
+        //pagination
+        const page = parseInt(req.query.page,10) || 1;
+        const limit = parseInt(req.query.limit,10) || 25;
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit; 
+        query = query.skip(startIndex).limit(limit);
+        const total = await Restaurant.countDocuments({});
+
+        //Executing query
         const restaurant=await query; 
-        res.status(200).json({success:true,msg:"show all restaurents",count:restaurant.length,data:restaurant});
+
+        //pagination result
+        const pagination = {};
+        if(endIndex < total){
+                pagination.next = {
+                        page: page + 1,
+                        limit
+                }
+        }
+        if(startIndex > 0 && startIndex < total ){
+                pagination.prev = {
+                        page: page - 1,
+                        limit
+                }
+        }
+
+        res.status(200).json({success:true,msg:"show all restaurents",count:restaurant.length,pagination,data:restaurant});
     
 });
 
