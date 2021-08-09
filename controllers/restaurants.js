@@ -7,10 +7,31 @@ const geocoder=require('../utility/geocoder');
 //@routes GET api/v1/restaurents
 //@access No Signin required
 exports.getrestaurants=asyncHandler(async(req,res,next)=>{
-        let queryStr = JSON.stringify(req.query);
+        const reqQuery = {...req.query};        //use of spread opertor to copy req.query
+        //Arrays of fields to exclude for filtering
+        const removeFields = ['select','sort'];
+
+        //Loop over removeFields  and delete them from reqQuery
+        removeFields.forEach(param => delete reqQuery[param]);
+
+        let queryStr = JSON.stringify(reqQuery);
         queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
-        console.log(JSON.parse(queryStr));
         let query = Restaurant.find(JSON.parse(queryStr));  //we can also pass req.query directly with [$lt]
+
+        //select fields
+        if(req.query.select){
+                const fields = req.query.select.split(',').join(' ');  //conver to array using split() and convert back to string seperated by space
+                query = query.select(fields);
+        }
+
+        //sort
+        if(req.query.sort){
+                const sortBy = req.query.sort.split(',').join(' ');  
+                query = query.sort(sortBy);
+        }else{
+                query = query.sort('-createdAt');
+        }
+        
         const restaurant=await query; 
         res.status(200).json({success:true,msg:"show all restaurents",count:restaurant.length,data:restaurant});
     
