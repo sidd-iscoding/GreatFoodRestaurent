@@ -90,6 +90,10 @@ const resturSchema=new mongoose.Schema({
         type: Date,
         default: Date.now
       },
+},
+{
+  toJSON: { virtuals: true},
+  toObject: { virtuals: true}
 });
 
 //create restaurant slug form the name
@@ -117,7 +121,12 @@ resturSchema.pre('save', async function(next){
   next();
 });
 
-
+//Reverse populate with virtuals
+resturSchema.virtual('menus',{
+  ref: 'Menu',
+  localField: '_id',
+  foreignField: 'resturant',
+});
 
 module.exports=mongoose.model('Restaurant',resturSchema); 
 
